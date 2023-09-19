@@ -1,6 +1,6 @@
-
-
-use std::net::TcpListener;
+use std::io::Read;
+use std::net::{Shutdown, TcpListener};
+use crate::http::request::Request;
 
 
 /// HTTP Server
@@ -29,8 +29,8 @@ impl Server {
         loop {
             // std::thread::sleep(std::time::Duration::from_millis(500));
             let res = listener.accept();
-            let (stream, addr) = match res {
-                Ok((stream, addr)) => {
+            let (mut stream, addr) = match res {
+                Ok((mut stream, addr)) => {
                     (stream, addr)
                 },
                 Err(e) => {
@@ -40,6 +40,19 @@ impl Server {
             };
 
             dbg!(format!("[+] new connection {} -> {}", &addr.to_string(), &self.address));
+            let mut data_buf: Vec<u8> = Vec::new();
+            let read_result = stream.read_to_end(&mut data_buf);
+            let data_sz = match read_result {
+                Ok(data_sz) => data_sz,
+                Err(e) => {
+                    eprintln!("failed to read from the tcp stream. error: {}", e);
+                    stream.shutdown(Shutdown::Both).unwrap_or(());
+                    continue;
+                },
+            };
+            // now, that the request data has been read in, construct an actual request instance
+            // from the byte slice
+            let req_result = Request::try_from(&data_buf[..data_sz]);
         }
     }
 }
