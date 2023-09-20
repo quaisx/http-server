@@ -27,9 +27,12 @@ impl FromStr for Method {
             "POST" => Ok(Self::POST),
             "PUT" => Ok(Self::PUT),
             "TRACE" => Ok(Self::TRACE),
-            _ => Err(MethodError),
+            _ => Err(MethodError::Error("Unknown request".to_string())),
         }
     }
 }
 
-pub struct MethodError;
+#[non_exhaustive]
+pub enum MethodError{
+    Error(String),
+}

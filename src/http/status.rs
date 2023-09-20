@@ -10,7 +10,7 @@ Server error responses (500 – 599)
 
 /// Some of the most popular HTTP Response codes are implemented (for simplicity)
 #[derive(Copy, Clone, Debug)]
-pub enum HTTPStatusCode {
+pub enum HTTPResponseCode {
     Ok = 200,
     BadRequest = 400,
     Unauthorized = 401,
@@ -21,7 +21,7 @@ pub enum HTTPStatusCode {
     BadGateway = 502,
     ServiceUnavailable = 503,
 }
-impl Display for HTTPStatusCode {
+impl Display for HTTPResponseCode {
     fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
         let human_sentence = match self {
             Self::Ok => "200 Ok",
