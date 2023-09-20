@@ -3,7 +3,7 @@ use crate::http::method::Method;
 use crate::http::qstring::QString;
 use std::str;
 
-const HTTP_v1_1: &str = "HTTP/1.1";
+const HTTP_V1_1: &str = "HTTP/1.1";
 const CH_CR: char = '\r';
 const CH_SP: char = ' ';
 

@@ -31,24 +31,28 @@ impl<'z> From<&'z str> for QString<'z> {
         for sub_str in s.split('&') {
             let mut q_key = sub_str;
             // in case a key is missing a value, store an empty string
-            let mut q_val = "";
+            let mut q_val_new = "";
             // does this key have an associated value?
             if let Some(assign_idx) = sub_str.find('=') { // does it have an actual value via assignment operator?
                 q_key = &sub_str[..assign_idx]; // the data to the left of the = operator is the key
-                q_val = &sub_str[assign_idx + 1..]; // the data to the right of the = operator is the value
+                q_val_new = &sub_str[assign_idx + 1..]; // the data to the right of the = operator is the value
             }
             // get existing value(s) for the given key
             data.entry(q_key)
                 // provide in-place mutable access to an occupied entry before any potential inserts into the map.
-                .and_modify(|existing: &mut Value| match existing {
-                    Value::Single(prev_val) => {
-                        // if the value was signle, replace with multiple...
-                        *existing = Value::Multiple(vec![prev_val, q_val]);
+                .and_modify(
+                    |q_val_exists: &mut Value| match q_val_exists {
+                        // the value exists, see if it's a single value
+                        Value::Single(already_exists_q_val) => {
+                            // if the value is already present and is a signle value,
+                            // replace with the multiple type value
+                            *q_val_exists = Value::Multiple(vec![already_exists_q_val, q_val_new]);
+                        }
+                        Value::Multiple(vec) => vec.push(q_val_new),
                     }
-                    Value::Multiple(vec) => vec.push(q_val),
-                })
+                )
                 // or simply insert a single value
-                .or_insert(Value::Single(q_val));
+                .or_insert(Value::Single(q_val_new));
         }
 
         Self {
